@@ -3,7 +3,7 @@ import java.io.*;
 import java.net.*;
 /**
  *
- * @author nguye
+ * @author David Nguyen
  */
 public class server {
     
