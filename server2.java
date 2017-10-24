@@ -8,41 +8,45 @@ import java.util.logging.Logger;
  * @author David Nguyen
  */
 public class server2 extends Thread{
-    private static int port;
-    private ServerSocket serv_Socket;
+    private static int port = 444;
+    private static ServerSocket serv_Socket;
+    private final static String file_send ="c:/users/nguye/banana.jpg";
     
+    public static void main(String [] args) throws IOException{
+        FileInputStream fis = null;
+        BufferedInputStream bis = null;
+        OutputStream os = null;
+        Socket sock = null;
 
-    public server2(int port) throws IOException
-   {
-      serv_Socket = new ServerSocket(port);
-   }
-    
-    public void run(){
-        while(true){
-            try
-            {
-                Socket server = serv_Socket.accept();
-                DataInputStream in = new DataInputStream(server.getInputStream());
-                System.out.println(in.readUTF());
-                DataOutputStream out = new DataOutputStream(server.getOutputStream());
-                out.writeUTF("Thank you for connecting to "+server.getLocalSocketAddress() + "\nGoodbye!");
-                server.close();
-            } catch(IOException e)
-         {
-            e.printStackTrace();
-            break;
-         }
+        
+        try{
+            serv_Socket= new ServerSocket(port);
+            while(true){
+                System.out.println("Waiting...");
+                try{
+                    sock =serv_Socket.accept();
+                    System.out.println("Accepted connection : "+sock);
+                    File myFile = new File (file_send);
+                    byte [] mybytearray = new byte[(int)myFile.length()];
+                    fis = new FileInputStream(myFile);
+                    bis = new BufferedInputStream(fis);
+                    bis.read(mybytearray,0,mybytearray.length);
+                    os = sock.getOutputStream();
+                    System.out.println("Sending "+ file_send+ "("+mybytearray.length +"bytes)");
+                    os.write(mybytearray, 0, mybytearray.length);
+                    os.flush();
+                    System.out.println("Done. ");
+                }
+                finally{
+                    if (bis !=null) bis.close();
+                    if( os!= null) os.close();
+                    if(sock!=null) sock.close();
+                    
+                }
+            }
         }
-    }
-    
-    public static void main(String [] args){
-        port = 444;
-        try
-        {
-            Thread t = new server2(port);
-            t.start();
-        }catch(IOException e){
-            e.printStackTrace();
+        finally{
+            if (serv_Socket != null) serv_Socket.close();
         }
     }
     
